@@ -1,0 +1,6 @@
+Flask==2.0.1
+openai>=0.10.0
+firebase-admin
+requests
+cryptography
+google-cloud-storage
