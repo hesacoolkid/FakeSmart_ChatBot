@@ -1,23 +1,32 @@
-from database.firestore_client import FirestoreClient
-from datetime import datetime  # Import the datetime class
-
+import json
 
 class FeedbackCollector:
+    def __init__(self, db):
+        self.db = db
 
-  def __init__(self, db: FirestoreClient):
-    self.db = db
+    def collect_feedback(self, session_id, feedback):
+        """
+        Stores feedback from a chat session.
 
-  def collect_feedback(self, customer_id, feedback):
-    if not customer_id or not feedback:
-      raise ValueError("Customer ID and feedback are required.")
+        Args:
+            session_id (str): The unique identifier for the chat session.
+            feedback (dict): A dictionary containing feedback details.
 
-    try:
-      feedback_data = {
-          'customer_id': customer_id,
-          'feedback': feedback,
-          'timestamp': datetime.now()  # Corrected to datetime class
-      }
-      self.db.update_user_history(customer_id, {'feedback': feedback_data})
-      print(f"Feedback collected for customer {customer_id}.")
-    except Exception as e:
-      print(f"Error collecting feedback: {e}")
+        Returns:
+            bool: True if feedback is stored successfully, False otherwise.
+        """
+        if not session_id or not feedback:
+            print("Session ID and feedback are required.")
+            return False
+
+        try:
+            feedback_record = {
+                "session_id": session_id,
+                "feedback": json.dumps(feedback),
+                "timestamp": datetime.now()
+            }
+            self.db.insert_feedback(feedback_record)
+            return True
+        except Exception as e:
+            print(f"Error collecting feedback: {e}")
+            return False

@@ -1,13 +1,9 @@
-import os
-import openai
-
-# Set the OpenAI API key from the environment variables
-openai.api_key = os.getenv("OPENAI_API_KEY")
-
+from openai import OpenAI
+from flask import current_app
 
 def get_chatgpt_response(user_input):
-  """
-    Sends user input to the ChatGPT model and retrieves the response.
+    """
+    Communicates with OpenAI's API to get a response for the user's input using the streaming API.
 
     Args:
         user_input (str): The message from the user.
@@ -15,24 +11,29 @@ def get_chatgpt_response(user_input):
     Returns:
         str: The response from the ChatGPT model.
     """
-  response = openai.Completion.create(
-      model="gpt-4-1106-preview",  # Using the specified GPT-4 model
-      prompt=user_input,
-      max_tokens=500  # Adjust based on your needs
-  )
+    client = OpenAI(api_key=current_app.config['OPENAI_API_KEY'])
 
-  # Extracting the text response from the completion
-  return response.choices[0].text.strip()
+    stream = client.chat.completions.create(
+        model="gpt-4",
+        messages=[{"role": "user", "content": user_input}],
+        stream=True,
+    )
 
+    response_content = ""
+    for chunk in stream:
+        if chunk.choices[0].delta.content is not None:
+            response_content += chunk.choices[0].delta.content
+
+    return response_content
 
 def handle_chat(user_input):
-  """
-    Main function to handle the chat interaction.
+    """
+    Processes user input and returns the chatbot's response.
 
     Args:
-        user_input (str): The message from the user.
+        user_input (str): Input message from the user.
 
     Returns:
-        str: The response message from the ChatGPT model.
+        str: Chatbot's response.
     """
-  return get_chatgpt_response(user_input)
+    return get_chatgpt_response(user_input)

@@ -1,25 +1,17 @@
 import hashlib
 
-
 def generate_customer_id(user_info):
-  """
-    Generates a unique customer ID by hashing the provided user information.
+    """
+    Generate a unique customer ID based on user information.
 
     Args:
-        user_info (str): The user information (e.g., email or phone number) to hash.
+        user_info (str): Information about the user, such as email or phone number.
 
     Returns:
-        str: A hashed string representing the customer ID.
+        str: A unique customer ID.
     """
-  if not user_info:
-    raise ValueError(
-        "User information is required for generating a customer ID.")
-
-  # Normalize and encode the user information to ensure consistent hashing
-  normalized_info = user_info.strip().lower().encode('utf-8')
-
-  # Create a SHA-256 hash of the normalized information
-  hash_object = hashlib.sha256(normalized_info)
-  customer_id = hash_object.hexdigest()
-
-  return customer_id
+    if not user_info:
+        raise ValueError("User information is required to generate a customer ID.")
+    
+    # Use SHA-256 hashing to generate a unique identifier
+    return hashlib.sha256(user_info.encode('utf-8')).hexdigest()
